@@ -1,0 +1,32 @@
+{
+  "name": "svv",
+  "version": "0.2.0",
+  "description": "SVV: Scalable Vector Video, a resolution- and frame-rate-independent video format",
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": {
+    "svv": "src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build:player": "bun build src/player.ts --outfile dist/svv-player.js --minify --target browser",
+    "examples": "bun examples/build.ts",
+    "bench": "bun bench/run.ts",
+    "demo": "bun examples/build.ts && bun examples/serve.ts",
+    "check:browser": "bun bench/browser-check.ts",
+    "perf": "bun bench/perf.ts --headed",
+    "clips": "bun bench/clips/make.ts"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.1.0",
+    "@types/opentype.js": "^1.3.10",
+    "bun-types": "^1.4.4",
+    "puppeteer-core": "^25.16.0",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "opentype.js": "^2.0.0"
+  }
+}

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVV: Scalable Vector Video</title>
+<script type="module" src="./svv-player.js"></script>
+<style>
+  :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; background: #0b1120; color: #e2e8f0; }
+  body { margin: 0 auto; max-width: 1200px; padding: 32px 24px 64px; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  h2 { margin: 40px 0 12px; font-size: 18px; color: #94a3b8; font-weight: 600; }
+  p { color: #94a3b8; margin: 4px 0 16px; line-height: 1.5; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  figure { margin: 0; background: #111a2e; border-radius: 12px; overflow: hidden; }
+  figcaption { padding: 10px 12px; font-size: 13px; display: flex; justify-content: space-between; color: #cbd5e1; }
+  figcaption b { color: #67e8f9; font-weight: 600; }
+  .sizes { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .sizes svv-player { border-radius: 8px; }
+  .controls { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin: 12px 0; font-size: 14px; }
+  .controls label { display: flex; gap: 8px; align-items: center; }
+  output { min-width: 64px; color: #67e8f9; font-variant-numeric: tabular-nums; }
+  #lab { border-radius: 12px; }
+</style>
+</head>
+<body>
+<h1>SVV: Scalable Vector Video</h1>
+<p>Every clip below is a few kilobytes. The player draws Bézier shapes, text, masks, glows and blurs at your screen's pixel density and refresh rate, so you never see fixed pixels or fixed frames. Files stream in chunks, so playback starts before the whole file arrives.</p>
+
+<h2>Gallery</h2>
+<div class="grid" id="gallery"></div>
+
+<h2>One file, any size</h2>
+<p>The same <code>logo.svv</code> drawn at 96, 240 and 560 CSS pixels wide. Each one is sharp.</p>
+<div class="sizes">
+  <svv-player src="svv/logo.svv" autoplay style="width:96px"></svv-player>
+  <svv-player src="svv/logo.svv" autoplay style="width:240px"></svv-player>
+  <svv-player src="svv/logo.svv" autoplay style="width:560px"></svv-player>
+</div>
+
+<h2>Any frame rate, any zoom</h2>
+<p>Pick a frame rate, slow time down, or zoom into the scene. SVV keyframes are continuous curves, so slow motion stays smooth and zoom stays sharp.</p>
+<div class="controls">
+  <label>Clip <select id="clip"></select></label>
+  <label>Frame rate <select id="fps"><option value="0" selected>display</option><option>240</option><option>60</option><option>24</option><option>12</option><option>4</option></select></label>
+  <label>Speed <input id="speed" type="range" min="0.02" max="2" step="0.01" value="1"><output id="speedOut">1.00×</output></label>
+  <label>Zoom <input id="zoom" type="range" min="1" max="64" step="0.1" value="1"><output id="zoomOut">1×</output></label>
+</div>
+<svv-player id="lab" src="svv/morph.svv" autoplay></svv-player>
+
+<script type="module">
+  const manifest = await (await fetch('svv/manifest.json')).json()
+  const gallery = document.getElementById('gallery')
+  const clip = document.getElementById('clip')
+  for (const m of manifest) {
+    const fig = document.createElement('figure')
+    fig.innerHTML = `<svv-player src="svv/${m.name}.svv" autoplay></svv-player><figcaption><span>${m.name}.svv · ${m.duration}s</span><b>${(m.bytes / 1024).toFixed(1)} KB</b></figcaption>`
+    gallery.append(fig)
+    clip.add(new Option(m.name, m.name, m.name === 'morph', m.name === 'morph'))
+  }
+  const lab = document.getElementById('lab')
+  const fps = document.getElementById('fps')
+  const speed = document.getElementById('speed')
+  const zoom = document.getElementById('zoom')
+  const apply = () => {
+    lab.setAttribute('fps', fps.value)
+    lab.setAttribute('playbackrate', speed.value)
+    document.getElementById('speedOut').value = `${Number(speed.value).toFixed(2)}×`
+    const z = Number(zoom.value)
+    document.getElementById('zoomOut').value = `${z.toFixed(1)}×`
+    const p = lab.player
+    if (!p) return
+    const { width, height } = p.compiled.scene
+    const w = width / z
+    const h = height / z
+    lab.setAttribute('view', z === 1 ? '' : `${(width - w) / 2} ${(height - h) / 2 - (height * 0.065 * (z - 1)) / z} ${w} ${h}`)
+  }
+  for (const el of [fps, speed, zoom]) el.addEventListener('input', apply)
+  clip.addEventListener('change', () => lab.setAttribute('src', `svv/${clip.value}.svv`))
+  lab.addEventListener('load', apply)
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "chart",
+    "bytes": 1463,
+    "duration": 6
+  },
+  {
+    "name": "confetti",
+    "bytes": 7565,
+    "duration": 6
+  },
+  {
+    "name": "cutout",
+    "bytes": 1221,
+    "duration": 6
+  },
+  {
+    "name": "landscape",
+    "bytes": 1139,
+    "duration": 10
+  },
+  {
+    "name": "logo",
+    "bytes": 775,
+    "duration": 4
+  },
+  {
+    "name": "morph",
+    "bytes": 2256,
+    "duration": 6
+  },
+  {
+    "name": "titles",
+    "bytes": 3667,
+    "duration": 6
+  }
+]
