@@ -30,6 +30,11 @@
     "duration": 6
   },
   {
+    "name": "portrait",
+    "bytes": 3445,
+    "duration": 4
+  },
+  {
     "name": "titles",
     "bytes": 3667,
     "duration": 6

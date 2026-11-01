@@ -4,6 +4,10 @@
 
 SVV is a file format for animation. It stores shapes and motion, not pixels and frames, so a file has no resolution and no frame rate. It plays sharp at any size and smooth at any speed, and it stays tiny.
 
+![An anime portrait that blinks, with twinkling glints, a shining star and pulsing emphasis lines](docs/portrait.gif)
+
+*The SVV file behind this loop is 3.4 KB, smaller than the 15.7 KB still SVG it was drawn from. The GIF you are watching is 408 KB and stops at 960 pixels wide; the SVV file has no such limit.*
+
 ## Why
 
 A camera records light landing on a grid of sensors, many times a second. For footage, pixels and frames are the truth, so codecs like H.264, AV1 and AVIF store pixels and frames. They do that job well.
@@ -109,7 +113,7 @@ const scene: Scene = {
 await Bun.write('hello.svv', encode(scene))
 ```
 
-See `examples/scenes/` for complete scenes, including a title sequence (`titles.ts`) and a rigged character (`cutout.ts`).
+See `examples/scenes/` for complete scenes: `portrait.ts` loads an SVG drawing and animates it with eyelids, glints and pulsing lines layered over the art, `titles.ts` is a title sequence, and `cutout.ts` is a rigged character.
 
 ## Reference
 
