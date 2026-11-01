@@ -1,5 +1,8 @@
 # SVV: Scalable Vector Video
 
+> [!WARNING]
+> **This is an experiment, not a finished format.** SVV is a prototype for testing an idea. The format, the tools and the player may change or break at any time, and files made today may not play in later versions. Don't use it in production.
+
 **Video formats were made for video. Animation deserves its own.**
 
 SVV is a file format for animation. It stores shapes and motion, not pixels and frames, so a file has no resolution and no frame rate. It plays sharp at any size and smooth at any speed, and it stays tiny.
@@ -63,12 +66,12 @@ In Chrome, every example plays at the display's full rate at 2560×1440, with un
 
 ## Status
 
-This is an experiment. It works, but it isn't finished:
+SVV is an experiment. It works well enough to test the idea, but it isn't finished:
 
 - Scenes are written in code. There is no import from After Effects, Lottie or Figma yet.
 - The web player has been tested in Chrome only. Video layers need WebCodecs with AV1, which some Safari versions lack.
 - The player has no on-screen controls.
-- The format is at version 2 and may still change.
+- The format is at version 2 and will change. There is no promise that later players will read today's files.
 
 ## Writing scenes
 

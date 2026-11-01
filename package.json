@@ -1,7 +1,7 @@
 {
   "name": "svv",
   "version": "0.2.0",
-  "description": "SVV: Scalable Vector Video, a resolution- and frame-rate-independent video format",
+  "description": "SVV: Scalable Vector Video, an experimental resolution- and frame-rate-independent video format",
   "type": "module",
   "main": "src/index.ts",
   "bin": {

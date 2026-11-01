@@ -1,5 +1,8 @@
 # SVV format, version 2
 
+> [!WARNING]
+> This is an experimental draft, not a stable standard. Any part of it may change in the next version without a way to read older files.
+
 SVV (Scalable Vector Video) stores moving pictures as shapes and keyframes instead of pixels and frames. A decoder rebuilds the scene and a renderer draws it at whatever pixel size and whatever instant the viewer asks for. Shapes carry no resolution and keyframes carry no frame rate. Content that does not reduce to shapes (painted backgrounds, textures, camera footage) rides along as embedded raster images or AV1 video layers, so one file can mix both.
 
 - File extension: `.svv`
