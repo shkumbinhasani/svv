@@ -1,14 +1,10 @@
-<img src="assets/icon.svg" width="64" height="64" alt="">
-
 # SVV: Scalable Vector Video
 
 **Video formats were made for video. Animation deserves its own.**
 
-![A cut-out character walking across a hillside](docs/cutout.gif)
+SVV is a file format for animation. It stores shapes and motion, not pixels and frames, so a file has no resolution and no frame rate. It plays sharp at any size and smooth at any speed, and it stays tiny.
 
-*This GIF weighs 1.1 MB. The SVV file it came from weighs 1.2 KB, and it can be drawn at 8K and 240 fps.*
-
-## Animation was never made of pixels
+## Why
 
 A camera records light landing on a grid of sensors, many times a second. For footage, pixels and frames are the truth, so codecs like H.264, AV1 and AVIF store pixels and frames. They do that job well.
 
@@ -25,7 +21,25 @@ So there is no 480p version of an SVV file, and no 4K version. There is the file
 
 ![The same frame zoomed 30 times: SVV redraws a clean edge from 775 bytes, the 82 KB AVIF turns to blur](docs/zoom.png)
 
-## How it compares
+## Quick start
+
+Requires [Bun](https://bun.sh). Rendering to video also needs `ffmpeg` built with `libsvtav1`, `libdav1d` and `libopus`.
+
+```sh
+bun install
+bun src/cli.ts encode examples/scenes/titles.ts -o titles.svv
+bun src/cli.ts render titles.svv -o titles.mp4 --width 3840 --fps 120
+bun run demo           # serves the example player on http://localhost:8080
+```
+
+To play a file in a web page, build the player with `bun run build:player` and add:
+
+```html
+<script type="module" src="svv-player.js"></script>
+<svv-player src="titles.svv" autoplay style="width: 100%"></svv-player>
+```
+
+## Results
 
 Five test clips at 1280×720 and 24 fps, against animated AVIF (SVT-AV1) at the same SSIM ([BENCHMARKS.md](BENCHMARKS.md) has the method):
 
@@ -52,54 +66,7 @@ This is an experiment. It works, but it isn't finished:
 - The player has no on-screen controls.
 - The format is at version 2 and may still change.
 
-## Features
-
-| | |
-|---|---|
-| Shapes | Explicit Bézier paths and point-only spline paths, solid and gradient fills, strokes, morphing between any two shapes |
-| Motion | Keyframes with linear, hold, CSS cubic-bezier and smooth (continuous velocity) easing on every property |
-| Effects | Masks (normal and inverted), 16 blend modes plus additive, blur, glow, drop shadow, isolated group opacity |
-| Text | Embedded fonts, subset to the characters used, with kerning, alignment, letter spacing and line height |
-| Media | AVIF, WebP, PNG and JPEG images; AV1 video layers decoded with WebCodecs; Opus audio |
-| Delivery | 10-second self-contained chunks with an index up front; HTTP range requests for seeking; progressive playback when ranges aren't available |
-| Conversion | `svv trace` turns existing video into SVV: shapes linked across frames, a raster background plate for camera pans, and an AV1 fallback per chunk |
-
-## Try it
-
-Requires [Bun](https://bun.sh). Rendering, tracing and the benchmark also need `ffmpeg` built with `libsvtav1`, `libdav1d` and `libopus`.
-
-```sh
-bun install
-bun test               # codec, effects, text, media, chunks, tracer, player, fuzzing
-bun run demo           # builds the examples and serves the demo page on http://localhost:8080
-bun run check:browser  # drives Chrome to check the web player (set CHROME to its path)
-bun run perf           # plays each example in Chrome and counts frames shown
-bun run bench          # the AVIF comparison above
-```
-
-## Command line
-
-```sh
-bun src/cli.ts encode examples/scenes/titles.ts -o titles.svv
-bun src/cli.ts info titles.svv
-bun src/cli.ts render titles.svv -o titles.mp4 --width 3840 --fps 120
-bun src/cli.ts render titles.svv -o detail.png --width 2048 --view 600,450,320,180 --time 2
-bun src/cli.ts render titles.svv -o frame.svg --time 2
-bun src/cli.ts trace cartoon.mp4 -o cartoon.svv
-```
-
-`render` writes `.mp4`, `.webm`, `.mkv`, `.avif`, `.gif`, `.png` or `.svg`, and mixes in the file's audio when the format allows. `--view x,y,w,h` picks a region of the scene to fill the output. `trace` accepts `--mode auto|vector|av1`, `--colors`, `--tolerance`, `--plate auto|raster|none` and `--chunk`.
-
-## In a web page
-
-```html
-<script type="module" src="svv-player.js"></script>
-<svv-player src="intro.svv" autoplay style="width: 100%"></svv-player>
-```
-
-The element sizes its canvas to its layout size times `devicePixelRatio` and redraws on every animation frame. Attributes: `fps` (lock to a frame rate, `0` = display rate), `playbackrate`, `view` and `muted`. It exposes `play()`, `pause()`, `currentTime` and `duration`. `bun run build:player` writes the minified bundle (about 40 KB) to `dist/`.
-
-## Making SVV files
+## Writing scenes
 
 Scenes are plain objects. Helpers build common shapes, `parseSvgPath` takes any SVG path string, and `fontFromBytes` embeds the glyphs a string needs from a TTF or OTF file.
 
@@ -144,6 +111,37 @@ await Bun.write('hello.svv', encode(scene))
 
 See `examples/scenes/` for complete scenes, including a title sequence (`titles.ts`) and a rigged character (`cutout.ts`).
 
+## Reference
+
+### Command line
+
+```sh
+bun src/cli.ts encode examples/scenes/titles.ts -o titles.svv
+bun src/cli.ts info titles.svv
+bun src/cli.ts render titles.svv -o titles.mp4 --width 3840 --fps 120
+bun src/cli.ts render titles.svv -o detail.png --width 2048 --view 600,450,320,180 --time 2
+bun src/cli.ts render titles.svv -o frame.svg --time 2
+bun src/cli.ts trace cartoon.mp4 -o cartoon.svv
+```
+
+`render` writes `.mp4`, `.webm`, `.mkv`, `.avif`, `.gif`, `.png` or `.svg`, and mixes in the file's audio when the format allows. `--view x,y,w,h` picks a region of the scene to fill the output. `trace` accepts `--mode auto|vector|av1`, `--colors`, `--tolerance`, `--plate auto|raster|none` and `--chunk`.
+
+### Web player
+
+The element sizes its canvas to its layout size times `devicePixelRatio` and redraws on every animation frame. Attributes: `fps` (lock to a frame rate, `0` = display rate), `playbackrate`, `view` and `muted`. It exposes `play()`, `pause()`, `currentTime` and `duration`. `bun run build:player` writes the minified bundle (about 40 KB) to `dist/`.
+
+### Features
+
+| | |
+|---|---|
+| Shapes | Explicit Bézier paths and point-only spline paths, solid and gradient fills, strokes, morphing between any two shapes |
+| Motion | Keyframes with linear, hold, CSS cubic-bezier and smooth (continuous velocity) easing on every property |
+| Effects | Masks (normal and inverted), 16 blend modes plus additive, blur, glow, drop shadow, isolated group opacity |
+| Text | Embedded fonts, subset to the characters used, with kerning, alignment, letter spacing and line height |
+| Media | AVIF, WebP, PNG and JPEG images; AV1 video layers decoded with WebCodecs; Opus audio |
+| Delivery | 10-second self-contained chunks with an index up front; HTTP range requests for seeking; progressive playback when ranges aren't available |
+| Conversion | `svv trace` turns existing video into SVV: shapes linked across frames, a raster background plate for camera pans, and an AV1 fallback per chunk |
+
 ## How it works
 
 - **Model.** A scene is a tree of shapes, text, images, video layers, groups and instances. Every animated property is a keyframe track, and the player samples tracks at the exact time of each display frame.
@@ -155,7 +153,16 @@ See `examples/scenes/` for complete scenes, including a title sequence (`titles.
 
 [SPEC.md](SPEC.md) defines the format down to the bit.
 
-## Layout
+## Development
+
+```sh
+bun test               # codec, effects, text, media, chunks, tracer, player, fuzzing
+bun run check:browser  # drives Chrome to check the web player (set CHROME to its path)
+bun run perf           # plays each example in Chrome and counts frames shown
+bun run bench          # the AVIF comparison (needs ffmpeg)
+```
+
+### Repository layout
 
 | Path | Contents |
 |---|---|
